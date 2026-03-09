@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: projeto
+  datasource:
+    url: ${DB_URL_TEST}
+    username: ${DB_USER_TEST}
+    password: ${DB_PASSWORD_TEST}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database: POSTGRESQL
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+  flyway:
+    baseline-on-migrate: true
+
+jwt:
+    key: ${PASS_JWT}
+
+server:
+  port: 8085
+  servlet:
+    context-path: /api/v1
+
+springdoc:
+  swagger-ui:
+    enabled: true
+    url: /v3/api-docs
+    deepLinking: true
+    defaultModelsExpandDepth: 1
+    defaultModelExpandDepth: 1
