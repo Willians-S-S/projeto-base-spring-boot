@@ -2,6 +2,7 @@ package br.com.wss.projeto.business.impl;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -19,6 +20,9 @@ import br.com.wss.projeto.business.AccountBusiness;
 import br.com.wss.projeto.entities.Account;
 import br.com.wss.projeto.enums.RoleAccountEnum;
 import br.com.wss.projeto.repositories.AccountRepository;
+import br.com.wss.services.EmailService;
+import br.com.wss.services.model.Email;
+import jakarta.mail.MessagingException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +38,8 @@ public class AccountBusinessImpl extends AbstractBusinessImpl<Account, String> i
 
     private final PasswordEncoder passwordEncoder;
 
+    private final EmailService emailService;
+
     public Optional<Account> findByEmail(String email){
         return getRepository().findByEmail(email);
     }
@@ -43,7 +49,6 @@ public class AccountBusinessImpl extends AbstractBusinessImpl<Account, String> i
 
         validate(entity, TransactionType.INSERT);
 
-        // entity.setUid(null);
         entity.setPassword(passwordEncoder.encode(entity.getPassword()));
 
         UserContextDetails userContextDetails = super.getUserDetails();
@@ -59,6 +64,18 @@ public class AccountBusinessImpl extends AbstractBusinessImpl<Account, String> i
             account = super.insert(entity);
         }
 
+        Email email = new Email();
+        email.setTo(entity.getEmail());
+        email.setSubject("Bem-vindo ao sistema!");
+        email.setTemplate("welcome-email");
+        email.setVariables(Map.of("name", entity.getName()));
+
+        try {
+            emailService.sendEmail(email);
+        } catch (MessagingException e) {
+            log.error("Falha ao enviar e-mail de boas-vindas para {}: {}", entity.getEmail(), e.getMessage());
+        }
+
         return account;
     }
 
@@ -67,7 +84,7 @@ public class AccountBusinessImpl extends AbstractBusinessImpl<Account, String> i
     }
 
     public Page<Account> findByParams(final String uid, final String name, final String taxNumber,
-                                      final String email, final String phone, final String createdByName, final String updatedByName,
+            final String email, final String phone, final String createdByName, final String updatedByName,
                                       final RoleAccountEnum roleAccountEnum, final Boolean active, final LocalDateTime createdStartAt, final LocalDateTime createdEndAt,
                                       final Pageable pageable){
         return getRepository().findByParams(uid, name, taxNumber, email, phone, createdByName, updatedByName, roleAccountEnum, active, createdStartAt, createdEndAt, pageable);
