@@ -8,7 +8,6 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import br.com.wss.services.model.Email;
-import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 
@@ -22,23 +21,29 @@ public class EmailService {
     @Value("${spring.mail.username}")
     private String fromEmail;
 
-    public void sendEmail(Email email) throws MessagingException {
-        Context context = new Context();
+    public void sendEmail(Email email) {
+        try {
+            Context context = new Context();
 
-        if (email.getVariables() != null) {
-            context.setVariables(email.getVariables());
+            if (email.getVariables() != null) {
+                context.setVariables(email.getVariables());
+            }
+
+            String htmlContent = templateEngine.process(email.getTemplate(), context);
+
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setFrom(fromEmail);
+            helper.setTo(email.getTo());
+            helper.setSubject(email.getSubject());
+            helper.setText(htmlContent, true); // true = HTML
+
+            mailSender.send(message);
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao enviar e-mail: " + e.getMessage(), e);
+
         }
-
-        String htmlContent = templateEngine.process(email.getTemplate(), context);
-
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-
-        helper.setFrom(fromEmail);
-        helper.setTo(email.getTo());
-        helper.setSubject(email.getSubject());
-        helper.setText(htmlContent, true); // true = HTML
-
-        mailSender.send(message);
+        
     }
 }

@@ -22,7 +22,6 @@ import br.com.wss.projeto.enums.RoleAccountEnum;
 import br.com.wss.projeto.repositories.AccountRepository;
 import br.com.wss.services.EmailService;
 import br.com.wss.services.model.Email;
-import jakarta.mail.MessagingException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -70,11 +69,7 @@ public class AccountBusinessImpl extends AbstractBusinessImpl<Account, String> i
         email.setTemplate("welcome-email");
         email.setVariables(Map.of("name", entity.getName()));
 
-        try {
-            emailService.sendEmail(email);
-        } catch (MessagingException e) {
-            log.error("Falha ao enviar e-mail de boas-vindas para {}: {}", entity.getEmail(), e.getMessage());
-        }
+        emailService.sendEmail(email);
 
         return account;
     }
