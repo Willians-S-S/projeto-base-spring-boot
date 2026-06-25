@@ -1,5 +1,6 @@
 package br.com.wss.projeto.entities;
 
+import br.com.wss.projeto.validation.PasswordValid;
 import org.hibernate.annotations.DynamicUpdate;
 
 import br.com.wss.base.BaseEntity;
@@ -38,5 +39,6 @@ public class Account extends BaseEntity<String> {
     @Column(unique = true, nullable = false)
     private String email;
 
+    @PasswordValid
     private String password;
 }
