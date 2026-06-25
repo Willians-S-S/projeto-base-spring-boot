@@ -102,7 +102,7 @@ public class VerificationCodeBusinessImpl extends AbstractBusinessImpl<Verificat
 
         code.setStatus(VerificationStatus.VERIFIED);
         code.setRevoked(true);
-        getRepository().save(code);
+        merge(code);
     }
 
     private String hashCode(String plainCode) {

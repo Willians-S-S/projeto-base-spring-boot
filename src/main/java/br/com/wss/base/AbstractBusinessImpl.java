@@ -1,5 +1,6 @@
 package br.com.wss.base;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Locale;
@@ -29,7 +30,8 @@ import lombok.extern.slf4j.Slf4j;
 public abstract class AbstractBusinessImpl<E extends BaseEntity<?>, ID extends Serializable>
 		implements BaseBusiness<E, ID> {
 
-	private static final long serialVersionUID = 5398011752218105464L;
+	@Serial
+    private static final long serialVersionUID = 5398011752218105464L;
 
 	@Autowired
 	private MessageSource messageSource;
@@ -145,7 +147,7 @@ public abstract class AbstractBusinessImpl<E extends BaseEntity<?>, ID extends S
 	@Override
 	public Optional<E> findByUid(ID id) {
 		return (Optional<E>) getRepository().findById(id).map(e -> {
-			if (e.getDeleted() != null && Boolean.TRUE.equals(e.getDeleted()))
+			if (e.getDeleted() != null && e.getDeleted())
 				throw new BusinessException(HttpStatus.NOT_FOUND, "Entity " + e.getUid() + " is deleted");
 			return Optional.of(e);
 		}).orElse(Optional.empty());
